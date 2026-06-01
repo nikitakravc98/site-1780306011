@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кофейня «Зёрна» — твоё утро начинается здесь</title>
+<style>
+  :root {
+    --coffee-dark: #2b1d16;
+    --coffee: #4a2f22;
+    --caramel: #c08552;
+    --cream: #f4ece2;
+    --accent: #d98a45;
+    --text: #efe6da;
+    --muted: #b9a896;
+    --radius: 16px;
+    --shadow: 0 20px 40px rgba(0,0,0,.25);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--coffee-dark);
+    background: var(--cream);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3 { font-weight: 800; line-height: 1.15; letter-spacing: -.02em; }
+
+  .container { width: min(1140px, 92%); margin: 0 auto; }
+
+  /* ---------- Header ---------- */
+  header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 18px 0;
+    transition: background .3s, padding .3s, box-shadow .3s;
+  }
+  header.scrolled {
+    background: rgba(43,29,22,.92);
+    backdrop-filter: blur(10px);
+    padding: 12px 0;
+    box-shadow: 0 8px 30px rgba(0,0,0,.2);
+  }
+  .nav { display: flex; align-items: center; justify-content: space-between; }
+  .logo {
+    font-size: 1.5rem; font-weight: 800; color: var(--cream);
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none;
+  }
+  .logo span { color: var(--accent); }
+  .logo .bean { font-size: 1.6rem; }
+  .nav-links { display: flex; gap: 34px; list-style: none; }
+  .nav-links a {
+    color: var(--text); text-decoration: none; font-weight: 500;
+    position: relative; transition: color .2s;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; left: 0; bottom: -6px;
+    width: 0; height: 2px; background: var(--accent); transition: width .25s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-links a:hover::after { width: 100%; }
+  .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; }
+  .burger span { width: 26px; height: 3px; background: var(--cream); border-radius: 3px; transition: .3s; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    background: linear-gradient(rgba(30,20,15,.72), rgba(30,20,15,.82)), #241712;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(circle at 75% 30%, rgba(217,138,69,.35), transparent 45%),
+      radial-gradient(circle at 20% 80%, rgba(192,133,82,.25), transparent 40%);
+  }
+  .hero-content {
+    position: relative; z-index: 2; max-width: 680px; color: var(--text);
+    animation: fadeUp 1s ease both;
+  }
+  .badge {
+    display: inline-block; padding: 7px 16px; border-radius: 999px;
+    background: rgba(217,138,69,.18); border: 1px solid rgba(217,138,69,.5);
+    color: var(--accent); font-size: .85rem; font-weight: 600; margin-bottom: 24px;
+    letter-spacing: .04em;
+  }
+  .hero h1 { font-size: clamp(2.5rem, 6vw, 4.4rem); color: #fff; margin-bottom: 22px; }
+  .hero h1 em { color: var(--accent); font-style: normal; }
+  .hero p { font-size: 1.2rem; color: var(--muted); margin-bottom: 36px; max-width: 540px; }
+  .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+
+  .btn {
+    display: inline-block; padding: 15px 34px; border-radius: 999px;
+    font-weight: 700; text-decoration: none; cursor: pointer; border: none;
+    font-size: 1rem; transition: transform .2s, box-shadow .2s, background .2s;
+  }
+  .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 12px 30px rgba(217,138,69,.4); }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 18px 38px rgba(217,138,69,.5); }
+  .btn-ghost { background: transparent; color: var(--text); border: 2px solid rgba(255,255,255,.35); }
+  .btn-ghost:hover { background: rgba(255,255,255,.1); transform: translateY(-3px); }
+
+  .hero-stats { display: flex; gap: 42px; margin-top: 56px; }
+  .hero-stats .num { font-size: 2.2rem; font-weight: 800; color: #fff; }
+  .hero-stats .lbl { color: var(--muted); font-size: .9rem; }
+
+  /* ---------- Sections ---------- */
+  section { padding: 100px 0; }
+  .section-head { text-align: center; max-width: 640px; margin: 0 auto 60px; }
+  .section-head .tag {
+    color: var(--accent); font-weight: 700; text-transform: uppercase;
+    letter-spacing: .12em; font-size: .85rem;
+  }
+  .section-head h2 { font-size: clamp(2rem, 4vw, 2.9rem); color: var(--coffee-dark); margin: 12px 0 16px; }
+  .section-head p { color: #7a6a5d; font-size: 1.08rem; }
+
+  /* ---------- Features ---------- */
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .feature {
+    background: #fff; padding: 38px 30px; border-radius: var(--radius);
+    box-shadow: 0 10px 30px rgba(74,47,34,.07); transition: transform .3s, box-shadow .3s;
+    border: 1px solid rgba(74,47,34,.05);
+  }
+  .feature:hover { transform: translateY(-8px); box-shadow: 0 22px 44px rgba(74,47,34,.14); }
+  .feature .icon {
+    width: 64px; height: 64px; border-radius: 18px; display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--caramel), var(--accent));
+    font-size: 1.8rem; margin-bottom: 22px;
+  }
+  .feature h3 { font-size: 1.3rem; margin-bottom: 10px; color: var(--coffee); }
+  .feature p { color: #7a6a5d; }
+
+  /* ---------- Menu ---------- */
+  .menu { background: var(--coffee-dark); }
+  .menu .section-head h2 { color: #fff; }
+  .menu .section-head p { color: var(--muted); }
+  .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+  .card {
+    background: #fff; border-radius: var(--radius); overflow: hidden;
+    box-shadow: var(--shadow); transition: transform .3s; display: flex; flex-direction: column;
+  }
+  .card:hover { transform: translateY(-8px); }
+  .card-img { height: 180px; display: grid; place-items: center; font-size: 4rem; }
+  .card-body { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+  .card-body h3 { font-size: 1.25rem; margin-bottom: 6px; }
+  .card-body p { color: #7a6a5d; font-size: .95rem; margin-bottom: 18px; flex: 1; }
+  .card-foot { display: flex; align-items: center; justify-content: space-between; }
+  .price { font-size: 1.4rem; font-weight: 800; color: var(--coffee); }
+  .add {
+    background: var(--coffee-dark); color: #fff; border: none; cursor: pointer;
+    padding: 10px 18px; border-radius: 999px; font-weight: 600; transition: background .2s, transform .2s;
+  }
+  .add:hover { background: var(--accent); transform: scale(1.05); }
+
+  /* ---------- About ---------- */
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+  .about-visual {
+    aspect-ratio: 1/1; border-radius: 24px;
+    background: linear-gradient(135deg, var(--caramel), var(--coffee));
+    display: grid; place-items: center; font-size: 9rem; box-shadow: var(--shadow);
+    position: relative; overflow: hidden;
+  }
+  .about-visual::after {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 70% 20%, rgba(255,255,255,.2), transparent 50%);
+  }
+  .about-text h2 { font-size: clamp(2rem, 4vw, 2.8rem); margin-bottom: 20px; color: var(--coffee-dark); }
+  .about-text p { color: #6b5b4e; margin-bottom: 18px; font-size: 1.05rem; }
+  .about-list { list-style: none; margin-top: 24px; }
+  .about-list li { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; color: var(--coffee); font-weight: 500; }
+  .about-list li .check {
+    width: 26px; height: 26px; border-radius: 50%; background: var(--accent);
+    color: #fff; display: grid; place-items: center; font-size: .9rem; flex-shrink: 0;
+  }
+
+  /* ---------- CTA ---------- */
+  .cta {
+    background: linear-gradient(135deg, var(--coffee), var(--coffee-dark));
+    color: var(--text); text-align: center; border-radius: 28px;
+    padding: 70px 30px; margin: 0 auto; box-shadow: var(--shadow);
+  }
+  .cta h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); color: #fff; margin-bottom: 16px; }
+  .cta p { color: var(--muted); margin-bottom: 32px; font-size: 1.1rem; }
+
+  /* ---------- Footer ---------- */
+  footer { background: #1d130e; color: var(--muted); padding: 60px 0 30px; }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 40px; margin-bottom: 40px; }
+  footer h4 { color: #fff; margin-bottom: 18px; font-size: 1.05rem; }
+  footer p { font-size: .95rem; }
+  footer ul { list-style: none; }
+  footer ul li { margin-bottom: 10px; }
+  footer a { color: var(--muted); text-decoration: none; transition: color .2s; }
+  footer a:hover { color: var(--accent); }
+  .socials { display: flex; gap: 12px; margin-top: 16px; }
+  .socials a {
+    width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.08);
+    display: grid; place-items: center; font-size: 1.1rem; transition: background .2s, transform .2s;
+  }
+  .socials a:hover { background: var(--accent); transform: translateY(-3px); }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,.1); padding-top: 24px; text-align: center; font-size: .9rem; }
+
+  /* ---------- Toast ---------- */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(120px);
+    background: var(--coffee-dark); color: #fff; padding: 14px 26px; border-radius: 999px;
+    box-shadow: var(--shadow); z-index: 200; font-weight: 600; opacity: 0;
+    transition: transform .4s cubic-bezier(.2,.8,.2,1), opacity .4s;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  /* ---------- Reveal animation ---------- */
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ---------- Mobile ---------- */
+  @media (max-width: 880px) {
+    .features, .menu-grid { grid-template-columns: 1fr; }
+    .about-grid { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .nav-links {
+      position: fixed; inset: 0 0 0 30%; background: rgba(29,19,14,.97); backdrop-filter: blur(8px);
+      flex-direction: column; justify-content: center; padding: 40px; gap: 28px;
+      transform: translateX(100%); transition: transform .35s; z-index: 90;
+    }
+    .nav-links.open { transform: translateX(0); }
+    .burger { display: flex; z-index: 95; }
+    .hero-stats { gap: 26px; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Header ===== -->
+<header id="header">
+  <div class="container nav">
+    <a href="#" class="logo"><span class="bean">☕</span>Зёрна<span>.</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#features">Почему мы</a></li>
+      <li><a href="#menu">Меню</a></li>
+      <li><a href="#about">О нас</a></li>
+      <li><a href="#contact">Контакты</a></li>
+    </ul>
+    <button class="burger" id="burger" aria-label="Меню">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ===== Hero ===== -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="container hero-content">
+    <span class="badge">★ Свежеобжаренный кофе каждый день</span>
+    <h1>Твоё утро начинается с <em>идеальной</em> чашки</h1>
+    <p>Авторские купажи, ароматная выпечка и уютная атмосфера в самом сердце города. Заходи на чашечку — оставайся на весь день.</p>
+    <div class="hero-actions">
+      <a href="#menu" class="btn btn-primary">Посмотреть меню</a>
+      <a href="#contact" class="btn btn-ghost">Забронировать столик</a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="num" data-target="15">0</div><div class="lbl">лет с вами</div></div>
+      <div><div class="num" data-target="32">0</div><div class="lbl">вида кофе</div></div>
+      <div><div class="num" data-target="9000">0</div><div class="lbl">чашек в неделю</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Features ===== -->
+<section id="features">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="tag">Почему именно мы</span>
+      <h2>Кофе, в который влюбляются</h2>
+      <p>Мы относимся к каждой детали с заботой — от выбора зерна до последнего глотка.</p>
+    </div>
+    <div class="features">
+      <div class="feature reveal">
+        <div class="icon">🌱</div>
+        <h3>Зёрна с плантаций</h3>
+        <p>Закупаем зерно напрямую у фермеров Эфиопии, Колумбии и Бразилии — без посредников.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="icon">🔥</div>
+        <h3>Своя обжарка</h3>
+        <p>Обжариваем небольшими партиями каждое утро, чтобы аромат был на пике свежести.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="icon">❤️</div>
+        <h3>Бариста-чемпионы</h3>
+        <p>Наша команда — призёры городских латте-арт баталий. Каждая чашка как искусство.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Menu ===== -->
+<section id="menu" class="menu">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="tag">Наше меню</span>
+      <h2>Выбери своё настроение</h2>
+      <p>От классики до авторских напитков — найдётся вкус на любой день.</p>
+    </div>
+    <div class="menu-grid">
+      <div class="card reveal">
+        <div class="card-img" style="background:linear-gradient(135deg,#d8a06b,#8a5a36)">☕</div>
+        <div class="card-body">
+          <h3>Капучино</h3>
+          <p>Эспрессо с бархатной молочной пенкой и щепоткой корицы.</p>
+          <div class="card-foot">
+            <span class="price">220 ₽</span>
+            <button class="add" data-name="Капучино">В корзину</button>
+          </div>
+        </div>
+      </div>
+      <div class="card reveal">
+        <div class="card-img" style="background:linear-gradient(135deg,#c98a52,#5e3a22)">🥛</div>
+        <div class="card-body">
+          <h3>Флэт Уайт</h3>
+          <p>Двойной ристретто и тонкий слой текстурированного молока.</p>
+          <div class="card-foot">
+            <span class="price">250 ₽</span>
+            <button class="add" data-name="Флэт Уайт">В корзину</button>
+          </div>
+        </div>
+      </div>
+      <div class="card reveal">
+        <div class="card-img" style="background:linear-gradient(135deg,#e0b483,#a86b3c)">🍮</div>
+        <div class="card-body">
+          <h3>Карамельный Латте</h3>
+          <p>Нежный латте с домашним солёным карамельным сиропом.</p>
+          <div class="card-foot">
+            <span class="price">290 ₽</span>
+            <button class="add" data-name="Карамельный Латте">В корзину</button>
+          </div>
+        </div>
+      </div>
+      <div class="card reveal">
+        <div class="card-img" style="background:linear-gradient(135deg,#3c2519,#1d130e)">🖤</div>
+        <div class="card-body">
+          <h3>Эспрессо</h3>
+          <p>Концентрированный вкус и плотная крема. Для настоящих ценителей.</p>
+          <div class="card-foot">
+            <span class="price">160 ₽</span>
+            <button class="add" data-name="Эспрессо">В корзину</button>
+          </div>
+        </div>
+      </div>
+      <div class="card reveal">
+        <div class="card-img" style="background:linear-gradient(135deg,#caa46f,#7a5230)">🧊</div>
+        <div class="card-body">
+          <h3>Айс Раф</h3>
+          <p>Холодный сливочный напиток с ванилью и колотым льдом.</p>
+          <div class="card-foot">
+            <span class="price">280 ₽</span>
+            <button class="add" data-name="Айс Раф">В корзину</button>
+          </div>
+        </div>
+      </div>
+      <div class="card reveal">
+        <div class="card-img" style="background:linear-gradient(135deg,#e8c9a0,#c08552)">🥐</div>
+        <div class="card-body">
+          <h3>Круассан</h3>
+          <p>Свежая французская выпечка на сливочном масле. Идеален к кофе.</p>
+          <div class="card-foot">
+            <span class="price">140 ₽</span>
+            <button class="add" data-name="Круассан">В корзину</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== About ===== -->
+<section id="about">
+  <div class="container about-grid">
+    <div class="about-visual reveal">☕</div>
+    <div class="about-text reveal">
+      <h2>Маленькая кофейня с большой душой</h2>
+      <p>«Зёрна» открылись в 2011 году как мечта двух друзей о месте, где каждый чувствует себя как дома. Сегодня мы — любимая кофейня района.</p>
+      <p>Здесь варят кофе не на скорость, а с любовью. Заходи почитать, поработать или просто помолчать с чашкой ароматного капучино.</p>
+      <ul class="about-list">
+        <li><span class="check">✓</span> Бесплатный Wi-Fi и розетки у каждого стола</li>
+        <li><span class="check">✓</span> Веганское и безлактозное молоко без доплат</li>
+        <li><span class="check">✓</span> Pet-friendly — приходи с питомцем</li>
+        <li><span class="check">✓</span> Программа лояльности: каждый 6-й кофе в подарок</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA / Contact ===== -->
+<section id="contact">
+  <div class="container">
+    <div class="cta reveal">
+      <h2>Ждём тебя каждый день с 8:00 до 22:00</h2>
+      <p>ул. Кофейная, 12 · м. Центральная · +7 (900) 123-45-67</p>
+      <a href="#" class="btn btn-primary" id="bookBtn">Забронировать столик</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h4>☕ Зёрна.</h4>
+        <p>Свежеобжаренный кофе и уют в самом сердце города. Твоё любимое место для пауз.</p>
+        <div class="socials">
+          <a href="#" aria-label="Instagram">📷</a>
+          <a href="#" aria-label="Telegram">✈️</a>
+          <a href="#" aria-label="VK">💬</a>
+        </div>
+      </div>
+      <div>
+        <h4>Меню</h4>
+        <ul>
+          <li><a href="#menu">Кофе</a></li>
+          <li><a href="#menu">Выпечка</a></li>
+          <li><a href="#menu">Десерты</a></li>
+          <li><a href="#menu">Холодные напитки</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Компания</h4>
+        <ul>
+          <li><a href="#about">О нас</a></li>
+          <li><a href="#">Вакансии</a></li>
+          <li><a href="#">Франшиза</a></li>
+          <li><a href="#contact">Контакты</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Контакты</h4>
+        <ul>
+          <li>📍 ул. Кофейная, 12</li>
+          <li>📞 +7 (900) 123-45-67</li>
+          <li>✉️ hello@zerna.coffee</li>
+          <li>🕗 Ежедневно 8:00–22:00</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2026 Кофейня «Зёрна». Сделано с любовью и кофеином.
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast">Добавлено в корзину ✓</div>
+
+<script>
+  // --- Эффект шапки при прокрутке ---
+  const header = document.getElementById('header');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // --- Мобильное меню (бургер) ---
+  const burger = document.getElementById('burger');
+  const navLinks = document.getElementById('navLinks');
+  burger.addEventListener('click', () => navLinks.classList.toggle('open'));
+  navLinks.querySelectorAll('a').forEach(link =>
+    link.addEventListener('click', () => navLinks.classList.remove('open'))
+  );
+
+  // --- Появление блоков при прокрутке ---
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => io.observe(el));
+
+  // --- Анимированные счётчики статистики ---
+  const stats = document.querySelectorAll('.num');
+  const statsIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      const target = +el.dataset.target;
+      let cur = 0;
+      const step = Math.max(1, Math.ceil(target / 60));
+      const tick = () => {
+        cur += step;
+        if (cur >= target) { el.textContent = target.toLocaleString('ru'); }
+        else { el.textContent = cur.toLocaleString('ru'); requestAnimationFrame(tick); }
+      };
+      tick();
+      statsIO.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+  stats.forEach(s => statsIO.observe(s));
+
+  // --- Корзина и всплывающее уведомление ---
+  const toast = document.getElementById('toast');
+  let toastTimer;
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+  let cartCount = 0;
+  document.querySelectorAll('.add').forEach(btn => {
+    btn.addEventListener('click', () => {
+      cartCount++;
+      showToast(`«${btn.dataset.name}» добавлен ✓ (${cartCount})`);
+    });
+  });
+
+  // --- Кнопка бронирования столика ---
+  document.getElementById('bookBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    showToast('Спасибо! Мы перезвоним для подтверждения ☕');
+  });
+</script>
+
+</body>
+</html>
